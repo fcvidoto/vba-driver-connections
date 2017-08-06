@@ -9,80 +9,81 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-'Utiliza comandos SQL na própria planilha do Excel
-Public Sub ActiveWorkbookADO()
+'comando SQL na propria planilha' // ado novo (ACE)
+Sub excelSQL()
+	Dim cn As Object
+	Dim rs As Object
+	Dim strCon as String
+	Dim sSQL as String
+	'------------------------------------  
+	strCon = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & ThisWorkbook.FullName & ";Extended Properties=""Excel 12.0;HDR=Yes;IMEX=1"";"
+	Set cn = CreateObject("ADODB.Connection")
+	Set rs = CreateObject("ADODB.Recordset")
+	'------------------------------------  
+	cn.Open strCon
+	sSQL = "select * from [Sheet1$A1:G3]"
+	rs.Open sSQL, cn
+	Debug.Print rs.GetString
+End Sub
 
-    Dim activeWorkbookName As String: activeWorkbookName = ActiveWorkbook.FullName
-    Dim activeSheetName As String: activeSheetName = ActiveSheet.Name
-    Dim dsh As String: dsh = "[" & activeSheetName & "$]"
-
-    'Instanciando objetos
-    Dim q As String
-    Dim adoCN As ADODB.Connection: Set adoCN = New ADODB.Connection
-    Dim adoRS As ADODB.Recordset: Set adoRS = New ADODB.Recordset
-    
-    'Declarando localização do arquivo SQL (no caso a própria planilha)
-    With adoCN
-        .Provider = "Microsoft.Jet.OLEDB.4.0"
-        .Properties("Extended Properties") = "Excel 8.0"
-        .ConnectionString = "Data Source=" & ActiveWorkbook.FullName
-        .Open
-    End With
-   
-    'Comando SQL
-         q = "SELECT Nome, Sum(Idade) as IdadeCount"
-    q = q & " FROM [Excel 8.0;HDR=YES;DATABASE=" & activeWorkbookName & "]." & dsh & " AS ExcelQuery"
-    q = q & " GROUP BY Nome"
-    q = q & " HAVING ExcelQuery.Nome = 'Fernando'"
-
-    adoRS.Open q, adoCN, adOpenStatic
-    
-    'Copia do Recordset para a planilha
-    Sheets(1).Range("D1").CopyFromRecordset adoRS '<---------------
-    
-    adoCN.Close
-    Set adoCN = Nothing
-    Set adoRS = Nothing
-
+'utiliza comandos SQL na própria planilha do Excel // ado antigo
+Public Sub activeWorkbookADO()
+  Dim q As String
+  Dim adoCN As Object
+  Dim adoRS As Object
+  Set adoCN = CreateObject("ADODB.Connection")
+  Set adoRS = CreateObject("ADODB.Recordset")
+  '------------------------------------  
+  'Declarando localização do arquivo SQL (no caso a própria planilha)
+  With adoCN
+      .Provider = "Microsoft.Jet.OLEDB.4.0"
+      .Properties("Extended Properties") = "Excel 8.0"
+      .ConnectionString = "Data Source=" & ActiveWorkbook.FullName
+      .Open
+  End With
+  '------------------------------------  
+  'Comando SQL
+       q = "select Nome, Sum(Idade) as IdadeCount"
+  q = q & " from [Excel 8.0;HDR=YES;DATABASE=" & ActiveWorkbook.FullName & "].[" & ActiveSheet.Name & "$A1:B2]" & " as ExcelQuery"
+  q = q & " group by Nome"
+  q = q & " having ExcelQuery.Nome = 'Fernando'"
+  adoRS.Open q, adoCN, 3 'adOpenStatic
+	Debug.Print rs.GetString
 End Sub
 
 'Faz o insert no banco de dados de uma planilha de Excel com JOIN em uma tabela do Access
-Private Sub InsertNoBDComExcelJOIN()
-
-    Dim cn As ADODB.Connection
-    Dim q As String
-    
-    Dim dbEndereco As String: dbEndereco = "'" & ActiveWorkbook.Path & "\db_mercadoAcoes.accdb '"
-    Dim activeWorkbooklName As String: activeWorkbooklName = Application.ActiveWorkbook.FullName
-    Dim sheetName As String: sheetName = "cotacao_data"
-    Dim sheetNameQuery As String: sheetNameQuery = "[" & sheetName & "$]"
-    
-    ' connect to the Access database
-    Set cn = New ADODB.Connection
-    cn.Open "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & dbEndereco
-
-    ' Append data from Sheet1 of workbook to Table1 of mydb.mdb:
-             q = "INSERT INTO tb_Cotacao"
-        q = q & "    (cotacao_Papel, cotacao_Data, cotacao_UltimaCotacao, cotacao_Abertura, cotacao_Maxima, cotacao_Minima, cotacao_Volume,"
-        q = q & "     cotacao_AnteriorUltimaCotacao, cotacao_AnteriorAbertura, cotacao_AnteriorMaxima, cotacao_AnteriorMinima, cotacao_AnteriorVolume)"
-        q = q & " SELECT"
-        q = q & "    Papel, Data, [Ultima Cotação], Abertura, Máxima, Mínima, Volume,"
-        q = q & "    [(Anterior) Ultima Cotação], [(Anterior) Abertura], [(Anterior) Maxima], [(Anterior) Mínima], [(Anterior) Volume]"
-        q = q & " FROM"
-        q = q & "    [Excel 8.0;HDR=YES;DATABASE=" & activeWorkbooklName & "]." & sheetNameQuery & " AS ExcelSQL"
-        q = q & " LEFT JOIN"
-        q = q & "    tb_Cotacao AS Cotacao"
-        q = q & " ON"
-        q = q & "    ExcelSQL.Papel = Cotacao.cotacao_Papel AND ExcelSQL.Data = Cotacao.cotacao_Data"
-        q = q & " WHERE"
-        q = q & "    Cotacao.cotacao_Papel IS NULL AND Cotacao.cotacao_Data IS NULL"
-
-    cn.Execute q
-    'Fechando conn
-    cn.Close
-    
-    Set cn = Nothing
-
+Private Sub insertNoBDComExcelJOIN()
+	Dim cn As Object
+	Dim q As String
+	Dim dbEndereco As String
+	Dim activeWorkbooklName As String
+	Dim sheetName As String
+	Dim sheetNameQuery As String
+	'------------------------------------  
+	dbEndereco = "'" & ActiveWorkbook.Path & "\db_mercadoAcoes.accdb '" '<---- endereco DB
+	activeWorkbooklName = Application.ActiveWorkbook.FullName
+	sheetName = "cotacao_data"
+	sheetNameQuery = "[" & sheetName & "$]"
+	Set cn = CreateObject("ADODB.Connection") 'conecta ao Access Database
+	cn.Open "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & dbEndereco
+	'------------------------------------  
+	'Append data from Sheet1 of workbook to Table1 of mydb.mdb:
+	     q = "insert into tb_Cotacao"
+	q = q & "    (cotacao_Papel, cotacao_Data, cotacao_UltimaCotacao, cotacao_Abertura, cotacao_Maxima, cotacao_Minima, cotacao_Volume,"
+	q = q & "     cotacao_AnteriorUltimaCotacao, cotacao_AnteriorAbertura, cotacao_AnteriorMaxima, cotacao_AnteriorMinima, cotacao_AnteriorVolume)"
+	q = q & " select"
+	q = q & "    Papel, Data, [Ultima Cotação], Abertura, Máxima, Mínima, Volume,"
+	q = q & "    [(Anterior) Ultima Cotação], [(Anterior) Abertura], [(Anterior) Maxima], [(Anterior) Mínima], [(Anterior) Volume]"
+	q = q & " from"
+	q = q & "    [Excel 8.0;HDR=YES;DATABASE=" & activeWorkbooklName & "]." & sheetNameQuery & " AS ExcelSQL"
+	q = q & " left join"
+	q = q & "    tb_Cotacao AS Cotacao"
+	q = q & " on"
+	q = q & "    ExcelSQL.Papel = Cotacao.cotacao_Papel and ExcelSQL.Data = Cotacao.cotacao_Data"
+	q = q & " where"
+	q = q & "    Cotacao.cotacao_Papel IS NULL AND Cotacao.cotacao_Data IS NULL"
+	'------------------------------------  
+	cn.Execute q
 End Sub
 
 'Faz uma query no banco de dados Access e cola os dados em um range específico
@@ -566,4 +567,3 @@ Private Sub AccessToArrayFromExcel()
     diaAnterior = myDiaAnterior
     
 End Sub
-
