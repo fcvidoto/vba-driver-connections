@@ -9,6 +9,82 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
+
+'excel'
+select *
+from [Excel 8.0;HDR=YES;DATABASE=C:\Users\Familia\Desktop\2017_Julho_vrs_3.xlsx].[sheet1$] as excelSQL 
+
+'csv'
+select *
+from [Text;FMT=Delimited;HDR=NO;DATABASE=C:\Users\Familia\Dropbox\arysta_excel\PEC\SAP].[2017_Julho_vrs_3#csv] as csvSQL 
+'^^^- compensa abrir o csv como Excel, incluir a header e montar a consulta
+
+'exporta os dados de cliente como .csv
+Public Sub exportaCliente(fileName As String)
+  '----------------------
+  Dim fso As Object
+  Dim oFile As Object
+  '----------------------
+  'escreve linha a linha
+  Set fso = CreateObject("Scripting.FileSystemObject")
+  Set oFile = fso.CreateTextFile(CurrentProject.Path & "\" & fileName & ".csv") '<--- path do arquivo
+  '----------------------
+  Dim rs As Recordset
+  Dim campo As Field
+  Dim linha As String
+  Dim sSQL As String
+  Dim i As Double
+  Dim versao As String
+         sSQL = " select cliente_por_cultura.Versao, cliente_por_cultura.ano, cliente_por_cultura.[CN SAP], cliente_por_cultura.[Cultura SAP], cliente_por_cultura.[Vendedor SAP], cliente_por_cultura.[Cliente SAP], cliente_por_cultura.Produto, cliente_por_cultura.TEXTO, cliente_por_cultura.TEXTO2, cliente_por_cultura.UF, cliente_por_cultura.Municipio, cliente_por_cultura.Nome, cliente_por_cultura.Area, cliente_por_cultura.Potencial, cliente_por_cultura.Empresa, cliente_por_cultura.Moeda, cliente_por_cultura.tbl_Cultura.id, cliente_por_cultura.tbl_CN.id, cliente_por_cultura.tbl_CTC.id, cliente_por_cultura.tbl_Produto.id, cliente_por_cultura.tbl_Cliente.id, soma_vendas_cliente.somaVenda, soma_vendas_cliente.somaVolume "
+  sSQL = sSQL & " from cliente_por_cultura LEFT JOIN soma_vendas_cliente ON (cliente_por_cultura.ano = soma_vendas_cliente.ano) AND (cliente_por_cultura.tbl_Cultura.id = soma_vendas_cliente.idCultura) AND (cliente_por_cultura.tbl_Cliente.id = soma_vendas_cliente.idCliente) AND (cliente_por_cultura.tbl_Produto.id = soma_vendas_cliente.idProduto) AND (cliente_por_cultura.tbl_CTC.id = soma_vendas_cliente.idVendedor) AND (cliente_por_cultura.tbl_CN.id = soma_vendas_cliente.idCN) "
+  sSQL = sSQL & " where Potencial <> 0"
+  Set rs = CurrentDb.OpenRecordset(sSQL)
+  '----------------------
+  'monta o cabecalho
+  For Each campo In rs.Fields 'monta o cabecalho
+    linha = linha & campo.Name & ";"
+  Next campo
+  oFile.WriteLine linha 'escreve o valor da linha
+  linha = "" 'apaga o valor da variavel
+  '----------------------
+  While Not rs.EOF
+    i = i + 1 'primeiro registro
+    '----------------------
+    'cria um novo arquivo a cada 1.000.000 de registros
+    If i = 1000000 Then
+      i = 1
+      versao = versao & "I"
+      Set oFile = fso.CreateTextFile(CurrentProject.Path & "\" & fileName & "_" & versao & ".csv") '<--- path do arquivo
+      '----------------------
+      'monta o cabecalho
+      For Each campo In rs.Fields 'monta o cabecalho
+        linha = linha & campo.Name & ";"
+      Next campo
+      oFile.WriteLine linha 'escreve o valor da linha
+      linha = "" 'apaga o valor da variavel
+      '----------------------
+    End If
+    '----------------------
+    For Each campo In rs.Fields 'monta a linha de registro
+      '----------------------
+      'If campo.Name = "Potencial" Then '<-- o campo de potencial tem que estar no formato americano
+      '  linha = linha & Replace(campo.Value, ",", ".") & ";"
+      'Else
+        linha = linha & campo.Value & ";"
+      'End If
+      '----------------------
+    Next campo
+    oFile.WriteLine linha 'escreve o valor da linha
+    linha = ""
+    rs.MoveNext '<--- next register
+  Wend
+  '----------------------
+  oFile.Close
+  Set fso = Nothing
+  Set oFile = Nothing
+End Sub
+
+
 'comando SQL na propria planilha' // ado novo (ACE)
 Sub excelSQL()
 	Dim cn As Object
