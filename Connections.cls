@@ -9,6 +9,9 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
+'access'
+select *
+from [vendas] in 'C:\Users\fcvid\Dropbox\arysta_excel\pdma-2\pdma_upl.accdb'
 
 'excel'
 select *
@@ -102,7 +105,7 @@ Sub excelSQL()
 	Debug.Print rs.GetString
 End Sub
 
-'utiliza comandos SQL na prÛpria planilha do Excel // ado antigo
+'utiliza comandos SQL na pr√≥pria planilha do Excel // ado antigo
 Public Sub activeWorkbookADO()
   Dim q As String
   Dim adoCN As Object
@@ -110,7 +113,7 @@ Public Sub activeWorkbookADO()
   Set adoCN = CreateObject("ADODB.Connection")
   Set adoRS = CreateObject("ADODB.Recordset")
   '------------------------------------  
-  'Declarando localizaÁ„o do arquivo SQL (no caso a prÛpria planilha)
+  'Declarando localiza√ß√£o do arquivo SQL (no caso a pr√≥pria planilha)
   With adoCN
       .Provider = "Microsoft.Jet.OLEDB.4.0"
       .Properties("Extended Properties") = "Excel 8.0"
@@ -148,8 +151,8 @@ Private Sub insertNoBDComExcelJOIN()
 	q = q & "    (cotacao_Papel, cotacao_Data, cotacao_UltimaCotacao, cotacao_Abertura, cotacao_Maxima, cotacao_Minima, cotacao_Volume,"
 	q = q & "     cotacao_AnteriorUltimaCotacao, cotacao_AnteriorAbertura, cotacao_AnteriorMaxima, cotacao_AnteriorMinima, cotacao_AnteriorVolume)"
 	q = q & " select"
-	q = q & "    Papel, Data, [Ultima CotaÁ„o], Abertura, M·xima, MÌnima, Volume,"
-	q = q & "    [(Anterior) Ultima CotaÁ„o], [(Anterior) Abertura], [(Anterior) Maxima], [(Anterior) MÌnima], [(Anterior) Volume]"
+	q = q & "    Papel, Data, [Ultima Cota√ß√£o], Abertura, M√°xima, M√≠nima, Volume,"
+	q = q & "    [(Anterior) Ultima Cota√ß√£o], [(Anterior) Abertura], [(Anterior) Maxima], [(Anterior) M√≠nima], [(Anterior) Volume]"
 	q = q & " from"
 	q = q & "    [Excel 8.0;HDR=YES;DATABASE=" & activeWorkbooklName & "]." & sheetNameQuery & " AS ExcelSQL"
 	q = q & " left join"
@@ -162,7 +165,7 @@ Private Sub insertNoBDComExcelJOIN()
 	cn.Execute q
 End Sub
 
-'Faz uma query no banco de dados Access e cola os dados em um range especÌfico
+'Faz uma query no banco de dados Access e cola os dados em um range espec√≠fico
 Public Sub AccessSQLToExcel()
 
     Dim adoCN As ADODB.Connection: Set adoCN = New ADODB.Connection
@@ -180,7 +183,7 @@ Public Sub AccessSQLToExcel()
     sSQL = "SELECT * FROM tbPessoas"
     adoRS.Open sSQL, adoCN, adOpenStatic, adLockReadOnly
     
-    'Range que ser· copiado os dados
+    'Range que ser√° copiado os dados
     Range("A1").CopyFromRecordset adoRS
 
 End Sub
@@ -231,7 +234,7 @@ Public Sub ExcelSQLToAccess()
     Dim dbWs As String
     Dim dsh As String
     
-    dbWb = EnderecoWb 'EndereÁo do arquivo
+    dbWb = EnderecoWb 'Endere√ßo do arquivo
     dbWs = Ws 'Nome da Worksheet
     dsh = "[" & dbWs & "$]"
 
@@ -244,9 +247,9 @@ Public Sub ExcelSQLToAccess()
         & "FROM Cliente_tmp"
     rs.Open SQL, cn, adOpenDynamic
     
-    'String SQL na planilha que ser· importada. IMPORTANTE: Nomes das colunas s„o do select
-    SQL = "INSERT INTO Cliente_tmp([Reg], [Distrito], [Setor], [Tipo Cliente], [Codigo JDE], [Raz„o Social], [EndereÁo], [Cidade], [UF], [CEP], [Regi„o], [CNPJ], [Status]) " _
-        & "SELECT [Reg], [Distrito], [Setor], [Tipo Cliente], [Codigo JDE], [Raz„o Social], [EndereÁo], [Cidade], [UF], [CEP], [Regi„o], [CNPJ], [Status] " _
+    'String SQL na planilha que ser√° importada. IMPORTANTE: Nomes das colunas s√£o do select
+    SQL = "INSERT INTO Cliente_tmp([Reg], [Distrito], [Setor], [Tipo Cliente], [Codigo JDE], [Raz√£o Social], [Endere√ßo], [Cidade], [UF], [CEP], [Regi√£o], [CNPJ], [Status]) " _
+        & "SELECT [Reg], [Distrito], [Setor], [Tipo Cliente], [Codigo JDE], [Raz√£o Social], [Endere√ßo], [Cidade], [UF], [CEP], [Regi√£o], [CNPJ], [Status] " _
         & "FROM [Excel 8.0;HDR=YES;DATABASE=" & dbWb & "]." & dsh
         
     rs.Open SQL, cn, adOpenStatic
@@ -257,10 +260,10 @@ Public Sub ExcelSQLToAccess()
 
 End Sub
 
-'Cria conex„o ADO e compara dados com o banco de dados criando um dicion·rio
+'Cria conex√£o ADO e compara dados com o banco de dados criando um dicion√°rio
 Public Function PreencheDicionarioPelaQuery() As String
        
-'(set da conex„o)
+'(set da conex√£o)
 
     Dim cn As ADODB.Connection
     Dim rs As ADODB.Recordset
@@ -311,7 +314,7 @@ Public Sub ArrayToExcel(ByRef DataRange As Variant, ByRef xls As Excel.Applicati
     With xls.Sheets(1)
         .Unprotect
         .Range("G1").Value = "Data: " & Format(Date, "dd/mm/yyyy") 'cola os dados de data no arquivo
-        .Range("A6", "G" & iLinhas).Value = DataRange 'comeÁa da linha 6
+        .Range("A6", "G" & iLinhas).Value = DataRange 'come√ßa da linha 6
         .Protect _
             DrawingObjects:=True, _
             Contents:=True, _
@@ -343,7 +346,7 @@ Sub ArrayToAccess(DataRange As Variant)
     DoCmd.RunSQL sSQL
     
     DoCmd.SetWarnings True
-'(Insere novos dados aqui se a validaÁ„o de colunas estiver ok)
+'(Insere novos dados aqui se a valida√ß√£o de colunas estiver ok)
 
     Set db = DBEngine.OpenDatabase(CurrentProject.FullName)
     Set rs = db.OpenRecordset("SELECT * FROM Clientes_tmp", dbOpenDynaset)
@@ -355,12 +358,12 @@ Sub ArrayToAccess(DataRange As Variant)
         rs.Fields![SETOR].Value = DataRange(i, 3)
         rs.Fields![TIPO CLIENTE].Value = DataRange(i, 4)
         rs.Fields![Codigo JDE].Value = StringToNumber(DataRange(i, 5))
-        rs.Fields![RAZ√O SOCIAL].Value = DataRange(i, 6)
-        rs.Fields![ENDERE«O].Value = DataRange(i, 7)
+        rs.Fields![RAZ√ÉO SOCIAL].Value = DataRange(i, 6)
+        rs.Fields![ENDERE√áO].Value = DataRange(i, 7)
         rs.Fields![CIDADE].Value = DataRange(i, 8)
         rs.Fields![UF].Value = DataRange(i, 9)
         rs.Fields![CEP].Value = DataRange(i, 10)
-        rs.Fields![REGI√O].Value = DataRange(i, 11)
+        rs.Fields![REGI√ÉO].Value = DataRange(i, 11)
         rs.Fields![CNPJ].Value = ConvertCNPJ(DataRange(i, 12))
         rs.Fields![Status].Value = DataRange(i, 13)
         rs.Update
@@ -370,10 +373,10 @@ Sub ArrayToAccess(DataRange As Variant)
  
 End Sub
 
-'Captura dados da inst‚ncia do Excel
+'Captura dados da inst√¢ncia do Excel
 Public Sub ExcelToArray(ByVal Caminho As String)
 
-'Retorna vari·vel para valor padr„o
+'Retorna vari√°vel para valor padr√£o
 
     Dim xls As Excel.Application
     Dim Wb As String
@@ -390,27 +393,27 @@ Public Sub ExcelToArray(ByVal Caminho As String)
         Ws = .Workbooks(1).Sheets(1).Name
     End With
 
-    '(Capturando range da tabela e montanto o array na memÛria)
+    '(Capturando range da tabela e montanto o array na mem√≥ria)
 
     Dim fimColunas As String: fimColunas = xls.Sheets(Ws).Range("A1").End(xlToRight).Address
     Dim fimLinhas As String: fimLinhas = xls.Sheets(Ws).Cells(linha, xls.Sheets(Ws).Range("A1").End(xlToRight).Column).Address
     Dim linha As Long: linha = xls.Sheets(Ws).Range("A1").End(xlDown).Row
     Dim j As Long
     
-    'Validando tamanho do array (Se for fora dos parametros, retorna erro de validaÁ„o)
+    'Validando tamanho do array (Se for fora dos parametros, retorna erro de valida√ß√£o)
     If xls.Sheets(Ws).ProtectContents _
         Or fimColunas = "$XFD$1" _
         Or fimColunas = "$IV$1" _
         Or fimLinhas = "$XFD$1048576" Then
                 
-        'Erros de validaÁ„o
+        'Erros de valida√ß√£o
         For j = 1 To UBound(V)
-            V(j) = "N„o Conforme"
+            V(j) = "N√£o Conforme"
         Next j
         
         ArrayErrosClientes = "Erro"
                 
-        GoTo erroValida 'Pula toda a validaÁ„o
+        GoTo erroValida 'Pula toda a valida√ß√£o
     End If
     
     Dim s As String
@@ -502,7 +505,7 @@ Private Sub DeleteEInsertNoBD()
     ' connect to the Access database
     cn.Open "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & dbEndereco
     
-    'Verifica se existem dados na tb CotaÁ„o, se sim, deleta os dados
+    'Verifica se existem dados na tb Cota√ß√£o, se sim, deleta os dados
              q = "SELECT"
         q = q & " *"
         q = q & " FROM"
@@ -512,7 +515,7 @@ Private Sub DeleteEInsertNoBD()
         
     rs.Open q, cn, adOpenStatic, adLockReadOnly
     
-    'Existem dados do dia procurado na tb CotaÁ„o
+    'Existem dados do dia procurado na tb Cota√ß√£o
     If rs.RecordCount > 0 Then
         
             q = " DELETE"
@@ -526,13 +529,13 @@ Private Sub DeleteEInsertNoBD()
 
     End If
 
-    ' Append data da cotaÁ„o_data para o banco de dados
+    ' Append data da cota√ß√£o_data para o banco de dados
              q = "INSERT INTO tb_Cotacao"
         q = q & "    (cotacao_Papel, cotacao_Data, cotacao_UltimaCotacao, cotacao_Abertura, cotacao_Maxima, cotacao_Minima, cotacao_Volume,"
         q = q & "     cotacao_AnteriorUltimaCotacao, cotacao_AnteriorAbertura, cotacao_AnteriorMaxima, cotacao_AnteriorMinima, cotacao_AnteriorVolume)"
         q = q & " SELECT"
-        q = q & "    Papel, Data, [Ultima CotaÁ„o], Abertura, M·xima, MÌnima, Volume,"
-        q = q & "    [(Anterior) Ultima CotaÁ„o], [(Anterior) Abertura], [(Anterior) Maxima], [(Anterior) MÌnima], [(Anterior) Volume]"
+        q = q & "    Papel, Data, [Ultima Cota√ß√£o], Abertura, M√°xima, M√≠nima, Volume,"
+        q = q & "    [(Anterior) Ultima Cota√ß√£o], [(Anterior) Abertura], [(Anterior) Maxima], [(Anterior) M√≠nima], [(Anterior) Volume]"
         q = q & " FROM"
         q = q & "    [Excel 8.0;HDR=YES;DATABASE=" & activeWorkbooklName & "]." & sheetNameQuery & " AS ExcelSQL"
         q = q & " LEFT JOIN"
@@ -551,7 +554,7 @@ Private Sub DeleteEInsertNoBD()
 
 End Sub
 
-'Monta a string de conex„o de dados da 'tbtbCotacaoAnterior'
+'Monta a string de conex√£o de dados da 'tbtbCotacaoAnterior'
 Private Sub MontaConnectionString()
     
     Dim conexao As WorkbookConnection
@@ -571,10 +574,10 @@ Private Sub MontaConnectionString()
     q = q & " WHERE"
     q = q & " Cotacao.cotacao_Data = #" & diaAnterior & "#"
     
-    'Itera pela coleÁ„o de conexıes
+    'Itera pela cole√ß√£o de conex√µes
     For Each conexao In ActiveWorkbook.Connections
         
-        'Quando achar a conex„o 'CotacaoAnterior' muda a string de conex„o
+        'Quando achar a conex√£o 'CotacaoAnterior' muda a string de conex√£o
         If conexao.Name = "CotacaoAnterior" Then
             conexao.OLEDBConnection.CommandText = q
             Exit For
@@ -594,7 +597,7 @@ Private Sub AccessToArrayFromExcel()
     Dim i As Long
     Dim myDiaAnterior() As Variant
     
-    'Abre o banco na memÛria
+    'Abre o banco na mem√≥ria
     Set daoDB = DBEngine.OpenDatabase(enderecoDoBanco)
     
     'Monta a string da query
@@ -613,7 +616,7 @@ Private Sub AccessToArrayFromExcel()
     q = q & " WHERE"
     q = q & " Cotacao.cotacao_Data = #" & calculaDiaAnterior & "#"
     
-    'Abre a query na memÛria
+    'Abre a query na mem√≥ria
     Set daoRS = daoDB.OpenRecordset(q, dbOpenDynaset)
     
     'Calcula o Tamanho do recordset
