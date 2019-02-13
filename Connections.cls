@@ -12,6 +12,7 @@ Option Explicit
 'split de um arquivo gigante em 2500 linhas'
 'tem que criar uma pasta com o unico arquivo'
 split -l 2500 EXP196_20190108100814_teste.csv
+for i in *; do mv "$i" "$i.csv"; done 'converte o nome com o formato csv
 
 'access'
 select *
