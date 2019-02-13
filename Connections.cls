@@ -9,11 +9,6 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-'split de um arquivo gigante em 2500 linhas'
-'tem que criar uma pasta com o unico arquivo'
-split -l 2500 EXP196_20190108100814_teste.csv
-for i in *; do mv "$i" "$i.csv"; done 'converte o nome com o formato csv
-
 'access'
 select *
 from [vendas] in 'C:\Users\fcvid\Dropbox\arysta_excel\pdma-2\pdma_upl.accdb'
